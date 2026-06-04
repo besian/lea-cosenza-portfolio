@@ -288,6 +288,7 @@ export function Footer() {
         <div>
           <h4>Direct</h4>
           <a href="mailto:hello@leacosenza.studio" data-cursor="link">hello@leacosenza.studio↗</a>
+          <a href="/admin.html" data-cursor="link">Admin ⚙</a>
         </div>
         <div>
           <h4>Elsewhere</h4>
