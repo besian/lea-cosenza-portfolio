@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { Placeholder } from './Placeholder';
 
 const clone = (v) => JSON.parse(JSON.stringify(v));
@@ -300,13 +301,14 @@ export function CaseStudy({ project, nextProject, onClose, onNext, onSaveProject
         </div>
       )}
 
-      {editing && (
+      {editing && createPortal(
         <EditModeBanner
           isDirty={isDirty}
           onSave={save}
           onDiscard={discard}
           onDelete={onDelete ? () => onDelete(project) : null}
-        />
+        />,
+        document.body
       )}
     </div>
   );
