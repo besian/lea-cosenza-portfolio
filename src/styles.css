@@ -657,6 +657,77 @@ footer{
 .ph .lbl{position:absolute;left:10px;top:10px;font-family:"JetBrains Mono",monospace;font-size:10px;color:rgba(255,255,255,.75);letter-spacing:.06em;text-transform:uppercase}
 .ph .lbl2{position:absolute;right:10px;top:10px;font-family:"JetBrains Mono",monospace;font-size:10px;color:rgba(255,255,255,.55);letter-spacing:.06em;text-transform:uppercase}
 
+/* ── Video placeholder ───────────────────────────────────────────────────── */
+.vid-ph{
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(135deg,var(--vph-c1,#1a1a1a),var(--vph-c2,#0a0a0a));
+}
+.vid-ph-play{
+  width:52px;height:52px;border-radius:50%;
+  background:rgba(255,255,255,.1);border:1.5px solid rgba(255,255,255,.22);
+  color:rgba(255,255,255,.6);font-size:18px;
+  display:flex;align-items:center;justify-content:center;padding-left:3px;
+}
+
+/* ── Video player ─────────────────────────────────────────────────────────── */
+.vid-wrap{position:absolute;inset:0}
+.vid-big-play{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:2;
+  width:54px;height:54px;border-radius:50%;
+  background:rgba(0,0,0,.45);border:1.5px solid rgba(255,255,255,.35);
+  color:#fff;font-size:18px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;padding-left:3px;
+  transition:opacity .2s,background .15s;
+}
+.vid-big-play:hover{background:rgba(0,0,0,.65)}
+.vid-big-play.is-playing{opacity:0;pointer-events:none}
+
+.vid-bar{
+  position:absolute;bottom:0;left:0;right:0;z-index:2;
+  display:flex;align-items:center;gap:8px;
+  padding:10px 12px 10px;
+  background:linear-gradient(to top,rgba(0,0,0,.75) 0%,transparent 100%);
+  opacity:0;transition:opacity .2s;
+}
+.vid-bar.is-on{opacity:1}
+.vid-btn{
+  color:#fff;font-size:12px;cursor:pointer;flex-shrink:0;
+  font-family:"JetBrains Mono",monospace;letter-spacing:.02em;
+  transition:color .12s;
+}
+.vid-btn:hover{color:var(--accent)}
+.vid-prog{
+  flex:1;height:3px;background:rgba(255,255,255,.25);
+  border-radius:2px;cursor:pointer;position:relative;overflow:hidden;
+}
+.vid-prog:hover{height:5px;margin:-1px 0}
+.vid-prog-fill{
+  position:absolute;left:0;top:0;bottom:0;
+  background:var(--accent);border-radius:2px;
+  pointer-events:none;
+}
+.vid-time{
+  font-family:"JetBrains Mono",monospace;font-size:10px;
+  color:rgba(255,255,255,.7);white-space:nowrap;flex-shrink:0;letter-spacing:.04em;
+}
+.vid-mute{
+  color:rgba(255,255,255,.7);font-size:10px;cursor:pointer;flex-shrink:0;
+  font-family:"JetBrains Mono",monospace;transition:color .12s;line-height:1;
+}
+.vid-mute:hover{color:#fff}
+.vid-vol{
+  width:52px;flex-shrink:0;
+  -webkit-appearance:none;appearance:none;
+  height:3px;background:rgba(255,255,255,.25);border-radius:2px;outline:none;cursor:pointer;
+}
+.vid-vol::-webkit-slider-thumb{
+  -webkit-appearance:none;appearance:none;
+  width:10px;height:10px;border-radius:50%;background:#fff;cursor:pointer;
+}
+.vid-vol::-moz-range-thumb{
+  width:10px;height:10px;border-radius:50%;background:#fff;cursor:pointer;border:0;
+}
+
 /* ── MediaSlot ───────────────────────────────────────────────────────────── */
 .ms { position: relative; display: block; height: 100%; }
 .ms-fill { width: 100%; height: 100%; object-fit: cover; display: block; }

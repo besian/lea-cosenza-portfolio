@@ -368,6 +368,7 @@ function CSSection({ section: s, alt, editing, onChange, onRemove, onMoveUp, onM
                   label={it.lbl} lbl2={it.ratio || ""}
                   fit={it.fit || "cover"}
                   editing={editing}
+                  mediaType={s.kind === 'video' || s.kind === 'films' ? 'video' : 'image'}
                   onUpload={url => onItemChange(i, { url })}
                 />
                 {(s.kind === "films" || s.kind === "video") && (
@@ -464,6 +465,7 @@ function CSCarousel({ section: s }) {
                   c1={it.c1} c2={it.c2} url={it.url}
                   label={it.lbl} lbl2={it.ratio || ""}
                   fit={it.fit || "cover"}
+                  mediaType={s.kind === 'video' ? 'video' : 'image'}
                 />
                 {s.kind === "video" && it.runtime && (
                   <div className="cs-sect-rec"><span /> {it.runtime}</div>
