@@ -2,20 +2,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { Placeholder } from './Placeholder';
 import { MediaSlot } from './MediaSlot';
+import { SECTION_TEMPLATES, SECTION_TYPES } from '../data';
 
 const clone = (v) => JSON.parse(JSON.stringify(v));
-
-const SECTION_TEMPLATES = {
-  text:     { kind:"text",     h:"A heading",       copy:"Write a paragraph here. This is a plain prose block — no media. Useful for the brief, a director's note, or behind-the-scenes detail.", items:[] },
-  image:    { kind:"image",    h:"Image",           copy:"Optional caption or context for this image.", items:[{ c1:"#3a2818", c2:"#1a1208", lbl:"IMAGE — DROP A 16:9 PLATE HERE", caption:"Caption — describe the shot" }] },
-  video:    { kind:"video",    h:"Video",           copy:"Optional context for this clip.", items:[{ c1:"#1a1a1a", c2:"#0a0a0a", lbl:"VIDEO — DROP REEL HERE", title:"New clip", runtime:"1:00", ratio:"16:9", caption:"" }] },
-  films:    { kind:"films",    h:"Films",    copy:"Short description of this set of films.", items:[{ title:"New film", runtime:"1:00", ratio:"16:9", c1:"#1a1a1a", c2:"#0a0a0a", lbl:"FILM 01 — A.CAM" }] },
-  identity: { kind:"identity", h:"Identity", copy:"Wordmarks, lockups, stamps.", items:[{ title:"Wordmark", c1:"#161412", c2:"#0a0908", lbl:"MARK A" }] },
-  posters:  { kind:"posters",  h:"Posters",  copy:"Series, monthly grid, etc.", items:[{ c1:"#ff3b1f", c2:"#161412", lbl:"POSTER 01" }] },
-  merch:    { kind:"merch",    h:"Merch",    copy:"Run-of-merch drops.", items:[{ title:"New item", c1:"#161412", c2:"#0a0908", lbl:"DROP / ITEM" }] },
-  print:    { kind:"print",    h:"Print",    copy:"Programmes, tickets, menus, signage.", items:[{ title:"New piece", c1:"#ece7dd", c2:"#3a2818", lbl:"PRINT" }] },
-};
-const SECTION_TYPES = Object.keys(SECTION_TEMPLATES);
 
 function EditableText({ value, onChange, editing, as = "span", multiline = false, placeholder = "", className = "", style }) {
   if (!editing) return React.createElement(as, { className, style }, value);
@@ -328,9 +317,9 @@ export function CaseStudy({ project, nextProject, onClose, onNext, onSaveProject
 }
 
 function CSSection({ section: s, alt, editing, projectId, onChange, onRemove, onMoveUp, onMoveDown, canMoveUp, canMoveDown, onItemChange, onItemAdd, onItemRemove }) {
-  const colsByKind = { films:3, identity:4, posters:4, merch:4, print:4 };
+  const colsByKind = { films:3, identity:4, posters:4, merch:4, print:4, image:2, video:2 };
   const cols = colsByKind[s.kind] || 4;
-  const isSingleton = s.kind === "text" || s.kind === "image" || s.kind === "video";
+  const isSingleton = s.kind === "text";
 
   return (
     <div className={"cs-block " + (editing ? "is-edit-section " : "") + "is-kind-" + s.kind} style={{ background: alt ? "var(--paper-2)" : "var(--paper)" }}>
@@ -353,26 +342,18 @@ function CSSection({ section: s, alt, editing, projectId, onChange, onRemove, on
         </p>
       </div>
 
-      {s.kind === "image" && s.items[0] && (
-        <SingletonMedia kind="image" item={s.items[0]} editing={editing} projectId={projectId} onChange={(patch) => onItemChange(0, patch)} />
-      )}
-
-      {s.kind === "video" && s.items[0] && (
-        <SingletonMedia kind="video" item={s.items[0]} editing={editing} projectId={projectId} onChange={(patch) => onItemChange(0, patch)} />
-      )}
-
-      {!isSingleton && (
+      {!isSingleton && (s.items?.length > 0 || editing) && (
         <div className="cs-sect-grid" style={{ gridTemplateColumns:`repeat(${cols},1fr)` }}>
-          {s.items.map((it, i) => (
+          {(s.items || []).map((it, i) => (
             <figure key={i} className={"cs-sect-item " + (s.kind === "films" ? "is-film " : "") + (s.kind === "posters" ? "is-poster " : "")}>
-              <div className={"cs-sect-frame " + (s.kind === "films" && it.ratio === "9:16" ? "is-vert" : "")}>
+              <div className={"cs-sect-frame " + ((s.kind === "films" || s.kind === "video") && it.ratio === "9:16" ? "is-vert" : "")}>
                 <MediaSlot
                   c1={it.c1} c2={it.c2} url={it.url}
                   label={it.lbl} lbl2={it.ratio || ""}
                   editing={editing} projectId={projectId}
                   onUpload={url => onItemChange(i, { url })}
                 />
-                {s.kind === "films" && (
+                {(s.kind === "films" || s.kind === "video") && (
                   <div className="cs-sect-rec"><span /> {it.runtime}</div>
                 )}
                 {editing && (
@@ -382,15 +363,22 @@ function CSSection({ section: s, alt, editing, projectId, onChange, onRemove, on
                   </div>
                 )}
               </div>
-              {(it.title || editing) && (
+              {(it.title || it.caption || editing) && (
                 <figcaption className="cs-sect-cap">
                   <span className="cs-sect-cap-t">
-                    <EditableText editing={editing} value={it.title || ""} onChange={(v) => onItemChange(i, { title: v })} placeholder="Title" />
+                    <EditableText
+                      editing={editing}
+                      value={it.title || it.caption || ""}
+                      onChange={(v) => onItemChange(i, { title: v })}
+                      placeholder={s.kind === "image" ? "Caption" : "Title"}
+                    />
                   </span>
-                  <span className="cs-sect-cap-m">
-                    <EditableText editing={editing} value={it.lbl || ""} onChange={(v) => onItemChange(i, { lbl: v })} placeholder="Label" />
-                    {it.runtime && !editing && ` · ${it.runtime} · ${it.ratio}`}
-                  </span>
+                  {s.kind !== "image" && (
+                    <span className="cs-sect-cap-m">
+                      <EditableText editing={editing} value={it.lbl || ""} onChange={(v) => onItemChange(i, { lbl: v })} placeholder="Label" />
+                      {it.runtime && !editing && ` · ${it.runtime} · ${it.ratio}`}
+                    </span>
+                  )}
                 </figcaption>
               )}
             </figure>
@@ -400,41 +388,6 @@ function CSSection({ section: s, alt, editing, projectId, onChange, onRemove, on
           )}
         </div>
       )}
-    </div>
-  );
-}
-
-function SingletonMedia({ kind, item: it, editing, projectId, onChange }) {
-  return (
-    <div className={"cs-singleton is-" + kind}>
-      <div className="cs-singleton-frame">
-        <MediaSlot
-          c1={it.c1} c2={it.c2} url={it.url}
-          label={it.lbl} lbl2={kind === "video" ? it.ratio : ""}
-          editing={editing} projectId={projectId}
-          onUpload={url => onChange({ url })}
-        />
-        {kind === "video" && (
-          <div className="cs-singleton-tc"><span /> REC · {it.runtime || "0:00"} · {it.ratio || "16:9"}</div>
-        )}
-        {editing && (
-          <div className="cs-singleton-edit">
-            <EditSwatch c1={it.c1} c2={it.c2} onChange={onChange} />
-          </div>
-        )}
-      </div>
-      <div className="cs-singleton-meta">
-        <div className="cs-singleton-cap">
-          <EditableText editing={editing} value={it.caption || ""} onChange={(v) => onChange({ caption: v })} placeholder={kind === "image" ? "Caption" : "Caption — what's happening"} multiline />
-        </div>
-        {kind === "video" && (
-          <div className="cs-singleton-vmeta">
-            <span><span className="vk">Title</span><EditableText editing={editing} value={it.title || ""} onChange={(v) => onChange({ title: v })} placeholder="Clip title" /></span>
-            <span><span className="vk">Runtime</span><EditableText editing={editing} value={it.runtime || ""} onChange={(v) => onChange({ runtime: v })} placeholder="0:00" /></span>
-            <span><span className="vk">Ratio</span><EditableText editing={editing} value={it.ratio || ""} onChange={(v) => onChange({ ratio: v })} placeholder="16:9" /></span>
-          </div>
-        )}
-      </div>
     </div>
   );
 }

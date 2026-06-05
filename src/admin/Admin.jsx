@@ -3,7 +3,7 @@ import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { auth } from '../firebase';
 import { fetchProjects, saveProject, saveAllProjects, removeProject } from '../firestore';
 import { uploadMedia } from '../storage';
-import { DEFAULT_PROJECTS, DISCIPLINES } from '../data';
+import { DEFAULT_PROJECTS, DISCIPLINES, SECTION_TEMPLATES, SECTION_TYPES } from '../data';
 import { Login } from './Login';
 import './admin.css';
 
@@ -310,24 +310,43 @@ function ProjectForm({ project, onChange }) {
   const addCredit = () => onChange({ credits: [...p.credits, ['', '']] });
   const removeCredit = (i) => onChange({ credits: p.credits.filter((_, j) => j !== i) });
 
+  const sections = p.sections || [];
+
   const patchSection = (si, key, val) => {
-    const next = clone(p.sections);
+    const next = clone(sections);
     next[si] = { ...next[si], [key]: val };
     onChange({ sections: next });
   };
+  const addSection = (kind) => {
+    const tpl = clone(SECTION_TEMPLATES[kind]);
+    onChange({ sections: [...sections, tpl] });
+  };
+  const removeSection = (si) => {
+    if (!confirm('Remove this section?')) return;
+    const next = clone(sections);
+    next.splice(si, 1);
+    onChange({ sections: next });
+  };
+  const moveSection = (si, dir) => {
+    const next = clone(sections);
+    const j = si + dir;
+    if (j < 0 || j >= next.length) return;
+    [next[si], next[j]] = [next[j], next[si]];
+    onChange({ sections: next });
+  };
   const patchSectionItem = (si, ii, key, val) => {
-    const next = clone(p.sections);
+    const next = clone(sections);
     next[si].items[ii] = { ...next[si].items[ii], [key]: val };
     onChange({ sections: next });
   };
   const addSectionItem = (si) => {
-    const next = clone(p.sections);
-    const sample = next[si].items[0] || { c1: '#1a1a1a', c2: '#0a0a0a', lbl: '' };
-    next[si].items.push({ ...Object.fromEntries(Object.keys(sample).map(k => [k, ''])), c1: sample.c1, c2: sample.c2 });
+    const next = clone(sections);
+    const tpl = SECTION_TEMPLATES[next[si].kind] || SECTION_TEMPLATES.identity;
+    next[si].items.push(clone(tpl.items[0]));
     onChange({ sections: next });
   };
   const removeSectionItem = (si, ii) => {
-    const next = clone(p.sections);
+    const next = clone(sections);
     next[si].items.splice(ii, 1);
     onChange({ sections: next });
   };
@@ -464,12 +483,18 @@ function ProjectForm({ project, onChange }) {
       </div>
 
       {/* ── Sections ── */}
-      {p.sections && p.sections.map((s, si) => (
+      {sections.map((s, si) => (
         <div key={si} className="card">
           <div className="card-head">
-            <h2 className="card-h">[{s.kind.toUpperCase()}]</h2>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+              <h2 className="card-h">[{s.kind.toUpperCase()}]</h2>
+              <button className="x-btn" onClick={() => moveSection(si, -1)} disabled={si === 0} title="Move up">↑</button>
+              <button className="x-btn" onClick={() => moveSection(si, 1)} disabled={si === sections.length - 1} title="Move down">↓</button>
+              <button className="x-btn" style={{ borderColor: 'var(--accent)', color: 'var(--accent)' }} onClick={() => removeSection(si)} title="Remove section">✕</button>
+            </div>
             <span className="card-hint">{s.items?.length ?? 0} items</span>
           </div>
+
           <Field label="Section heading">
             <input type="text" value={s.h} onChange={e => patchSection(si, 'h', e.target.value)} />
           </Field>
@@ -478,18 +503,22 @@ function ProjectForm({ project, onChange }) {
             <textarea value={s.copy} onChange={e => patchSection(si, 'copy', e.target.value)} rows={3} />
           </Field>
 
-          {s.items && s.items.length > 0 && (
+          {s.kind !== 'text' && (
             <div style={{ marginTop: 18 }}>
-              <div className="sect-items-head">
-                <span>C1</span><span>C2</span><span>Media</span><span>Title</span><span>Label</span><span />
+              <div className={'sect-items-head' + (s.kind === 'video' ? ' is-video-head' : '')}>
+                <span>C1</span><span>C2</span><span>Media</span>
+                <span>{s.kind === 'image' ? 'Caption' : 'Title'}</span>
+                {s.kind === 'video' && <><span>Runtime</span><span>Ratio</span></>}
+                {s.kind !== 'image' && s.kind !== 'video' && <span>Label</span>}
+                <span />
               </div>
-              {s.items.map((it, ii) => (
-                <div key={ii} className="sect-item-row">
+              {(s.items || []).map((it, ii) => (
+                <div key={ii} className={'sect-item-row' + (s.kind === 'video' ? ' is-video-row' : '')}>
                   <label className="pal-swatch" style={{ background: it.c1 }}>
-                    <input type="color" value={it.c1} onChange={e => patchSectionItem(si, ii, 'c1', e.target.value)} />
+                    <input type="color" value={it.c1 || '#1a1a1a'} onChange={e => patchSectionItem(si, ii, 'c1', e.target.value)} />
                   </label>
                   <label className="pal-swatch" style={{ background: it.c2 }}>
-                    <input type="color" value={it.c2} onChange={e => patchSectionItem(si, ii, 'c2', e.target.value)} />
+                    <input type="color" value={it.c2 || '#0a0a0a'} onChange={e => patchSectionItem(si, ii, 'c2', e.target.value)} />
                   </label>
                   <div className="pal-media">
                     {it.url && (
@@ -499,17 +528,58 @@ function ProjectForm({ project, onChange }) {
                     )}
                     <UploadBtn projectId={p.id} onUpload={url => patchSectionItem(si, ii, 'url', url)} />
                   </div>
-                  <input type="text" value={it.title ?? ''} placeholder="Title" onChange={e => patchSectionItem(si, ii, 'title', e.target.value)} />
-                  <input type="text" value={it.lbl ?? ''} placeholder="Label" onChange={e => patchSectionItem(si, ii, 'lbl', e.target.value)} />
+                  <input
+                    type="text"
+                    value={s.kind === 'image' ? (it.title ?? it.caption ?? '') : (it.title ?? '')}
+                    placeholder={s.kind === 'image' ? 'Caption' : 'Title'}
+                    onChange={e => patchSectionItem(si, ii, 'title', e.target.value)}
+                  />
+                  {s.kind === 'video' && (
+                    <>
+                      <input type="text" value={it.runtime ?? ''} placeholder="1:00" onChange={e => patchSectionItem(si, ii, 'runtime', e.target.value)} />
+                      <input type="text" value={it.ratio ?? ''} placeholder="16:9" onChange={e => patchSectionItem(si, ii, 'ratio', e.target.value)} />
+                    </>
+                  )}
+                  {s.kind !== 'image' && s.kind !== 'video' && (
+                    <input type="text" value={it.lbl ?? ''} placeholder="Label" onChange={e => patchSectionItem(si, ii, 'lbl', e.target.value)} />
+                  )}
                   <button className="x-btn" onClick={() => removeSectionItem(si, ii)}>✕</button>
                 </div>
               ))}
+              <button className="add-btn" onClick={() => addSectionItem(si)}>+ Add item</button>
             </div>
           )}
-          <button className="add-btn" onClick={() => addSectionItem(si)}>+ Add item</button>
         </div>
       ))}
+
+      {/* ── Add section ── */}
+      <SectionPicker onAdd={addSection} />
     </>
+  );
+}
+
+function SectionPicker({ onAdd }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="section-picker">
+      {!open ? (
+        <button className="add-btn section-picker-trigger" onClick={() => setOpen(true)}>
+          + Add section
+        </button>
+      ) : (
+        <div className="section-picker-menu">
+          <span className="card-hint">Choose type</span>
+          <div className="section-picker-btns">
+            {SECTION_TYPES.map(t => (
+              <button key={t} className="btn" onClick={() => { onAdd(t); setOpen(false); }}>
+                {t.toUpperCase()}
+              </button>
+            ))}
+          </div>
+          <button className="btn" style={{ marginTop: 8 }} onClick={() => setOpen(false)}>Cancel</button>
+        </div>
+      )}
+    </div>
   );
 }
 

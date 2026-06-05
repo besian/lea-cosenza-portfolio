@@ -333,3 +333,18 @@ textarea { font-family: "Archivo", sans-serif }
 /* Widen sect-item-row to fit the media column */
 .sect-item-row { grid-template-columns: 46px 46px 56px 1fr 1fr auto; }
 .sect-items-head { grid-template-columns: 46px 46px 56px 1fr 1fr auto; }
+
+/* Video rows: extra runtime + ratio columns */
+.sect-item-row.is-video-row { grid-template-columns: 46px 46px 56px 1fr 64px 64px auto; }
+.sect-items-head.is-video-head { grid-template-columns: 46px 46px 56px 1fr 64px 64px auto; }
+
+/* ── Section picker ───────────────────────────────────────────────────────── */
+.section-picker { margin-top: 8px; }
+.section-picker-trigger { width: 100%; text-align: center; }
+.section-picker-menu {
+  border: 1px dashed var(--rule); border-radius: 6px;
+  padding: 16px; display: flex; flex-direction: column; gap: 10px;
+}
+.section-picker-btns {
+  display: flex; flex-wrap: wrap; gap: 8px;
+}
