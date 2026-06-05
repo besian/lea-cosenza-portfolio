@@ -503,17 +503,31 @@ function ProjectForm({ project, onChange }) {
             <textarea value={s.copy} onChange={e => patchSection(si, 'copy', e.target.value)} rows={3} />
           </Field>
 
+          {(s.kind === 'image' || s.kind === 'video') && (
+            <div style={{ marginTop: 12 }}>
+              <Field label="Columns">
+                <select value={s.cols || 2} onChange={e => patchSection(si, 'cols', parseInt(e.target.value))}>
+                  <option value={1}>1 — Full width</option>
+                  <option value={2}>2 — Half</option>
+                  <option value={3}>3 — Thirds</option>
+                  <option value={4}>4 — Quarters</option>
+                </select>
+              </Field>
+            </div>
+          )}
+
           {s.kind !== 'text' && (
             <div style={{ marginTop: 18 }}>
-              <div className={'sect-items-head' + (s.kind === 'video' ? ' is-video-head' : '')}>
+              <div className={'sect-items-head' + (s.kind === 'video' ? ' is-video-head' : '') + ((s.kind === 'image' || s.kind === 'video') ? ' has-display' : '')}>
                 <span>C1</span><span>C2</span><span>Media</span>
                 <span>{s.kind === 'image' ? 'Caption' : 'Title'}</span>
                 {s.kind === 'video' && <><span>Runtime</span><span>Ratio</span></>}
                 {s.kind !== 'image' && s.kind !== 'video' && <span>Label</span>}
+                {(s.kind === 'image' || s.kind === 'video') && <><span>Fit</span><span>Aspect</span></>}
                 <span />
               </div>
               {(s.items || []).map((it, ii) => (
-                <div key={ii} className={'sect-item-row' + (s.kind === 'video' ? ' is-video-row' : '')}>
+                <div key={ii} className={'sect-item-row' + (s.kind === 'video' ? ' is-video-row' : '') + ((s.kind === 'image' || s.kind === 'video') ? ' has-display' : '')}>
                   <label className="pal-swatch" style={{ background: it.c1 }}>
                     <input type="color" value={it.c1 || '#1a1a1a'} onChange={e => patchSectionItem(si, ii, 'c1', e.target.value)} />
                   </label>
@@ -542,6 +556,23 @@ function ProjectForm({ project, onChange }) {
                   )}
                   {s.kind !== 'image' && s.kind !== 'video' && (
                     <input type="text" value={it.lbl ?? ''} placeholder="Label" onChange={e => patchSectionItem(si, ii, 'lbl', e.target.value)} />
+                  )}
+                  {(s.kind === 'image' || s.kind === 'video') && (
+                    <>
+                      <select value={it.fit || 'cover'} onChange={e => patchSectionItem(si, ii, 'fit', e.target.value)}>
+                        <option value="cover">Cover</option>
+                        <option value="contain">Contain</option>
+                        <option value="fill">Fill</option>
+                      </select>
+                      <select value={it.aspect || '16/9'} onChange={e => patchSectionItem(si, ii, 'aspect', e.target.value)}>
+                        <option value="16/9">16:9</option>
+                        <option value="4/3">4:3</option>
+                        <option value="1/1">1:1</option>
+                        <option value="3/2">3:2</option>
+                        <option value="3/4">3:4</option>
+                        <option value="9/16">9:16</option>
+                      </select>
+                    </>
                   )}
                   <button className="x-btn" onClick={() => removeSectionItem(si, ii)}>✕</button>
                 </div>

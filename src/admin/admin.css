@@ -334,9 +334,13 @@ textarea { font-family: "Archivo", sans-serif }
 .sect-item-row { grid-template-columns: 46px 46px 56px 1fr 1fr auto; }
 .sect-items-head { grid-template-columns: 46px 46px 56px 1fr 1fr auto; }
 
-/* Video rows: extra runtime + ratio columns */
-.sect-item-row.is-video-row { grid-template-columns: 46px 46px 56px 1fr 64px 64px auto; }
-.sect-items-head.is-video-head { grid-template-columns: 46px 46px 56px 1fr 64px 64px auto; }
+/* Image rows: + fit + aspect */
+.sect-item-row.has-display { grid-template-columns: 46px 46px 56px 1fr 80px 90px auto; }
+.sect-items-head.has-display { grid-template-columns: 46px 46px 56px 1fr 80px 90px auto; }
+
+/* Video rows: + runtime + ratio + fit + aspect */
+.sect-item-row.is-video-row.has-display { grid-template-columns: 46px 46px 56px 1fr 60px 60px 80px 90px auto; }
+.sect-items-head.is-video-head.has-display { grid-template-columns: 46px 46px 56px 1fr 60px 60px 80px 90px auto; }
 
 /* ── Section picker ───────────────────────────────────────────────────────── */
 .section-picker { margin-top: 8px; }

@@ -535,9 +535,26 @@ footer{
 /* per-item edit overlay (sections) */
 .cs-item-edit{
   position:absolute;top:8px;right:8px;z-index:3;
-  display:flex;gap:6px;align-items:center;
-  padding:5px 7px;background:rgba(0,0,0,.55);border-radius:6px;
+  display:flex;flex-direction:column;gap:5px;align-items:flex-end;
+  padding:5px 7px;background:rgba(0,0,0,.65);border-radius:6px;
   backdrop-filter:blur(8px);
+}
+.cs-item-edit-row{display:flex;gap:5px;align-items:center;}
+.cs-item-sel{
+  font-family:"JetBrains Mono",monospace;font-size:9px;font-weight:700;
+  letter-spacing:.06em;text-transform:uppercase;
+  background:rgba(255,255,255,.12);color:#fff;border:1px solid rgba(255,255,255,.2);
+  padding:3px 5px;border-radius:3px;cursor:pointer;outline:none;
+  appearance:none;-webkit-appearance:none;
+  min-width:52px;
+}
+.cs-item-sel:focus{border-color:var(--accent);}
+.ed-mini-sel{
+  font-family:"JetBrains Mono",monospace;font-size:10px;font-weight:700;
+  letter-spacing:.06em;text-transform:uppercase;
+  background:var(--ink);color:var(--paper);border:0;
+  padding:4px 8px;border-radius:4px;cursor:pointer;outline:none;
+  appearance:none;-webkit-appearance:none;
 }
 .ed-x{
   width:22px;height:22px;border-radius:50%;

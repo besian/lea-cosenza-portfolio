@@ -316,9 +316,12 @@ export function CaseStudy({ project, nextProject, onClose, onNext, onSaveProject
   );
 }
 
+const ASPECT_OPTIONS = ['16/9','4/3','1/1','3/2','3/4','9/16'];
+const FIT_OPTIONS = ['cover','contain','fill'];
+
 function CSSection({ section: s, alt, editing, projectId, onChange, onRemove, onMoveUp, onMoveDown, canMoveUp, canMoveDown, onItemChange, onItemAdd, onItemRemove }) {
   const colsByKind = { films:3, identity:4, posters:4, merch:4, print:4, image:2, video:2 };
-  const cols = colsByKind[s.kind] || 4;
+  const cols = s.cols || colsByKind[s.kind] || 4;
   const isSingleton = s.kind === "text";
 
   return (
@@ -326,6 +329,14 @@ function CSSection({ section: s, alt, editing, projectId, onChange, onRemove, on
       {editing && (
         <div className="ed-section-bar">
           <span className="ed-section-tag">[{s.kind.toUpperCase()}]</span>
+          {(s.kind === "image" || s.kind === "video") && (
+            <select className="ed-mini-sel" value={s.cols || colsByKind[s.kind] || 2} onChange={e => onChange({ cols: parseInt(e.target.value) })}>
+              <option value={1}>1 col</option>
+              <option value={2}>2 col</option>
+              <option value={3}>3 col</option>
+              <option value={4}>4 col</option>
+            </select>
+          )}
           <button className="ed-mini" onClick={onMoveUp} disabled={!canMoveUp}>↑</button>
           <button className="ed-mini" onClick={onMoveDown} disabled={!canMoveDown}>↓</button>
           <button className="ed-mini danger" onClick={onRemove}>×</button>
@@ -346,10 +357,14 @@ function CSSection({ section: s, alt, editing, projectId, onChange, onRemove, on
         <div className="cs-sect-grid" style={{ gridTemplateColumns:`repeat(${cols},1fr)` }}>
           {(s.items || []).map((it, i) => (
             <figure key={i} className={"cs-sect-item " + (s.kind === "films" ? "is-film " : "") + (s.kind === "posters" ? "is-poster " : "")}>
-              <div className={"cs-sect-frame " + ((s.kind === "films" || s.kind === "video") && it.ratio === "9:16" ? "is-vert" : "")}>
+              <div
+                className={"cs-sect-frame " + ((s.kind === "films" || s.kind === "video") && it.ratio === "9:16" ? "is-vert" : "")}
+                style={it.aspect ? { aspectRatio: it.aspect } : undefined}
+              >
                 <MediaSlot
                   c1={it.c1} c2={it.c2} url={it.url}
                   label={it.lbl} lbl2={it.ratio || ""}
+                  fit={it.fit || "cover"}
                   editing={editing} projectId={projectId}
                   onUpload={url => onItemChange(i, { url })}
                 />
@@ -358,8 +373,20 @@ function CSSection({ section: s, alt, editing, projectId, onChange, onRemove, on
                 )}
                 {editing && (
                   <div className="cs-item-edit">
-                    <EditSwatch c1={it.c1} c2={it.c2} onChange={(patch) => onItemChange(i, patch)} />
-                    <button className="ed-x dark" onClick={() => onItemRemove(i)}>×</button>
+                    <div className="cs-item-edit-row">
+                      <EditSwatch c1={it.c1} c2={it.c2} onChange={(patch) => onItemChange(i, patch)} />
+                      <button className="ed-x dark" onClick={() => onItemRemove(i)}>×</button>
+                    </div>
+                    {(s.kind === "image" || s.kind === "video") && (
+                      <div className="cs-item-edit-row">
+                        <select className="cs-item-sel" value={it.fit || "cover"} onChange={e => onItemChange(i, { fit: e.target.value })}>
+                          {FIT_OPTIONS.map(f => <option key={f} value={f}>{f}</option>)}
+                        </select>
+                        <select className="cs-item-sel" value={it.aspect || "16/9"} onChange={e => onItemChange(i, { aspect: e.target.value })}>
+                          {ASPECT_OPTIONS.map(a => <option key={a} value={a}>{a.replace('/', ':')}</option>)}
+                        </select>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>

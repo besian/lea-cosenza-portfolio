@@ -6,6 +6,7 @@ const isVideoUrl = (url) => url && /\.(mp4|mov|webm|ogg)(\?|$)/i.test(url.split(
 
 export function MediaSlot({
   c1, c2, label, lbl2, url,
+  fit = 'cover',
   editing = false, projectId,
   onUpload,
   className = '', children,
@@ -32,8 +33,8 @@ export function MediaSlot({
     <div className={'ms ' + className}>
       {url
         ? isVideoUrl(url)
-          ? <video src={url} className="ms-fill" autoPlay muted loop playsInline />
-          : <img src={url} className="ms-fill" alt={label || ''} />
+          ? <video src={url} className="ms-fill" style={{ objectFit: fit }} autoPlay muted loop playsInline />
+          : <img src={url} className="ms-fill" style={{ objectFit: fit }} alt={label || ''} />
         : <Placeholder c1={c1} c2={c2} label={label} lbl2={lbl2}>{children}</Placeholder>
       }
       {editing && onUpload && (
