@@ -78,57 +78,20 @@ button{background:none;border:0;color:inherit;font:inherit;padding:0}
   pointer-events:none;
 }
 
-/* ── Hero feature (typographic ticker) ── */
-.hero-feat{
-  position:relative;justify-self:center;align-self:center;
-  width:min(60vw,820px);
-  display:flex;flex-direction:column;align-items:center;gap:14px;
+/* ── Hero subtitle ── */
+.hero-sub{
+  justify-self:center;align-self:center;
+  display:flex;flex-direction:column;align-items:center;gap:10px;
   text-align:center;z-index:2;
-  padding:14px 20px;
 }
-.hf-mast{
-  display:flex;align-items:center;gap:10px;
-  font-family:"JetBrains Mono",monospace;font-size:11px;font-weight:500;
-  letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2);
+.hero-disc{
+  font-family:"JetBrains Mono",monospace;font-size:clamp(11px,1.1vw,14px);
+  letter-spacing:.12em;text-transform:uppercase;color:var(--ink);
 }
-.hf-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--accent);animation:rec 1.4s steps(1) infinite}
-.hf-rule{display:inline-block;width:38px;height:1px;background:var(--rule)}
-.hf-idx{color:var(--ink)}
-.hf-stack{
-  position:relative;width:100%;
-  height:clamp(160px,22vh,260px);
-  overflow:hidden;
+.hero-loc{
+  font-family:"JetBrains Mono",monospace;font-size:clamp(10px,.9vw,12px);
+  letter-spacing:.1em;text-transform:uppercase;color:var(--ink-2);
 }
-.hf-line{
-  position:absolute;inset:0;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;
-  opacity:0;transform:translateY(14px);
-  transition:opacity .6s cubic-bezier(.6,0,.2,1), transform .6s cubic-bezier(.6,0,.2,1);
-}
-.hf-line.is-on{opacity:1;transform:translateY(0)}
-.hf-verb{
-  font-family:"Instrument Serif",serif;font-style:italic;font-weight:400;
-  font-size:clamp(28px,3.2vw,48px);line-height:.9;
-  color:var(--ink-2);letter-spacing:-0.01em;
-}
-.hf-period{color:var(--accent)}
-.hf-title{
-  font-family:"Archivo",sans-serif;font-weight:900;
-  font-size:clamp(48px,6.4vw,108px);line-height:.86;letter-spacing:-0.04em;
-  text-transform:uppercase;color:var(--ink);
-  text-wrap:balance;
-}
-.hf-meta{
-  font-family:"JetBrains Mono",monospace;font-size:11.5px;font-weight:500;
-  letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2);
-}
-.hf-foot{
-  display:flex;justify-content:space-between;width:100%;
-  padding-top:10px;border-top:1px solid var(--rule);
-  font-family:"JetBrains Mono",monospace;font-size:10.5px;
-  letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2);
-}
-.hf-arrow{color:var(--accent);font-weight:700}
 
 .name-row{
   display:flex;align-items:baseline;justify-content:space-between;gap:1.2vw;

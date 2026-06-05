@@ -1,5 +1,4 @@
-import { useState, useEffect, useRef, useMemo } from 'react';
-import { MARQUEE_TERMS } from '../data';
+import { useState, useRef, useMemo } from 'react';
 import { Placeholder } from './Placeholder';
 import { MediaSlot } from './MediaSlot';
 
@@ -32,49 +31,6 @@ export function Topbar({ mode = "paper", onToggleMode }) {
   );
 }
 
-// ─── Hero feature — typographic ticker ───────────────────────────────────────
-function ReelLoop() {
-  const items = useMemo(() => [
-    { verb:"Editing",   title:"Nightshift",     meta:"Aria Volk · Music Video · 2026" },
-    { verb:"Coloring",  title:"Alpine",         meta:"Trend Atelier · Brand Film · 2025" },
-    { verb:"Cutting",   title:"Saltwater",      meta:"IDFA Selected · Documentary · 2025" },
-    { verb:"Designing", title:"The Troubadour", meta:"Identity → Film → Merch · 2024 — 26" },
-    { verb:"Drawing",   title:"Echo Chamber",   meta:"Slip Festival · Motion / VFX · 2025" },
-    { verb:"Stitching", title:"Loud / Quiet",   meta:"Polarities · Album Art · 2024" },
-    { verb:"Pressing",  title:"Heatwave",       meta:"Bakery · Identity · 2023" },
-  ], []);
-  const [i, setI] = useState(0);
-
-  useEffect(() => {
-    const id = setInterval(() => setI((v) => (v + 1) % items.length), 3000);
-    return () => clearInterval(id);
-  }, [items.length]);
-
-  return (
-    <div className="hero-feat" aria-hidden="true">
-      <div className="hf-mast">
-        <span className="hf-dot" />
-        <span>Now · Reel 06 / 2026</span>
-        <span className="hf-rule" />
-        <span className="hf-idx">{String(i + 1).padStart(2, "0")} / {String(items.length).padStart(2, "0")}</span>
-      </div>
-      <div className="hf-stack">
-        {items.map((it, idx) => (
-          <div key={idx} className={"hf-line " + (idx === i ? "is-on" : "")}>
-            <span className="hf-verb">{it.verb}<span className="hf-period">.</span></span>
-            <span className="hf-title">{it.title}</span>
-            <span className="hf-meta">{it.meta}</span>
-          </div>
-        ))}
-      </div>
-      <div className="hf-foot">
-        <span><span className="hf-arrow">↓</span> Index below</span>
-        <span>15 selected · 1 featured</span>
-      </div>
-    </div>
-  );
-}
-
 // ─── Hero ─────────────────────────────────────────────────────────────────────
 export function Hero() {
   return (
@@ -84,12 +40,14 @@ export function Hero() {
         <div className="name-row top">
           <span className="big">Lea</span>
         </div>
-        <ReelLoop />
+        <div className="hero-sub">
+          <span className="hero-disc">Editor · Designer · Colorist</span>
+          <span className="hero-loc">Bristol — Milan</span>
+        </div>
         <div className="name-row bot">
           <span className="big">Co<span className="name-dot" />senza<span className="ital">.</span></span>
         </div>
       </div>
-      <MarqueeStrip />
     </header>
   );
 }
@@ -147,16 +105,6 @@ export function Featured({ project, onOpen }) {
         </div>
       </div>
 
-      {p.stats && (
-        <ul className="ft-stats">
-          {p.stats.map(([label, value], i) => (
-            <li key={i}>
-              <span className="ft-stat-v">{value}</span>
-              <span className="ft-stat-l">{label}</span>
-            </li>
-          ))}
-        </ul>
-      )}
     </section>
   );
 }
