@@ -4,7 +4,7 @@ import { Placeholder } from './Placeholder';
 import { MediaSlot } from './MediaSlot';
 
 // ─── Topbar ──────────────────────────────────────────────────────────────────
-export function Topbar() {
+export function Topbar({ mode = "paper", onToggleMode }) {
   const [t, setT] = useState(() => new Date());
   useEffect(() => {
     const id = setInterval(() => setT(new Date()), 1000);
@@ -24,6 +24,9 @@ export function Topbar() {
         <a href="#index" data-cursor="link">Index↗</a>
         <a href="#about" data-cursor="link">About↗</a>
         <a href="#contact" data-cursor="link">Contact↗</a>
+        <button className="mode-btn" onClick={onToggleMode} data-cursor="link" title={mode === "dark" ? "Switch to light" : "Switch to dark"}>
+          {mode === "dark" ? "○" : "●"}
+        </button>
       </nav>
     </div>
   );

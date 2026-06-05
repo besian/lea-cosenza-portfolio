@@ -50,6 +50,11 @@ button{background:none;border:0;color:inherit;font:inherit;padding:0}
 .topbar nav{display:flex;gap:18px}
 .topbar a{position:relative}
 .topbar a:hover{color:var(--accent)}
+.mode-btn{
+  font-family:"JetBrains Mono",monospace;font-size:13px;color:var(--ink-2);
+  cursor:pointer;transition:color .15s;line-height:1;padding:0;
+}
+.mode-btn:hover{color:var(--accent)}
 
 /* ── Hero ──────────────────────────────────────────────────── */
 .hero{

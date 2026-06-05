@@ -108,7 +108,7 @@ export default function App() {
 
   return (
     <>
-      <Topbar />
+      <Topbar mode={t.mode} onToggleMode={() => setTweak("mode", t.mode === "dark" ? "paper" : "dark")} />
       <Hero />
       <Featured project={featuredProject} onOpen={openProject} />
       <Index projects={projects} onOpen={openProject} density={t.density} onCreate={authUser ? createProject : null} />
