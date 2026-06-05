@@ -669,16 +669,16 @@ footer{
 
 /* ── Section carousel (image / video in view mode) ──────────── */
 .cs-carousel{position:relative;padding-bottom:40px}
-.cs-car-viewport{overflow:hidden}
-.cs-car-track{
+.cs-car-viewport{
   display:flex;
-  width:100%;
-  transition:transform .42s cubic-bezier(.4,0,.2,1);
-  will-change:transform;
+  overflow-x:scroll;
+  scroll-snap-type:x mandatory;
+  scrollbar-width:none;
+  -ms-overflow-style:none;
 }
-.cs-car-slide{min-width:0;flex-shrink:0;padding:0 5px}
-.cs-car-slide:first-child{padding-left:0}
-.cs-car-slide:last-child{padding-right:0}
+.cs-car-viewport::-webkit-scrollbar{display:none}
+/* slide flex-basis set inline as percentage — fills viewport proportionally */
+.cs-car-slide{flex-shrink:0;min-width:0;scroll-snap-align:start}
 .cs-car-slide .cs-sect-item{margin:0}
 
 .cs-car-prev,.cs-car-next{

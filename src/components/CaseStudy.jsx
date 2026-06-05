@@ -423,6 +423,7 @@ function CSSection({ section: s, alt, editing, onChange, onRemove, onMoveUp, onM
 }
 
 function CSCarousel({ section: s }) {
+  const viewportRef = useRef(null);
   const [idx, setIdx] = useState(0);
   const items = s.items || [];
   if (!items.length) return null;
@@ -430,65 +431,66 @@ function CSCarousel({ section: s }) {
   const cols = s.cols || 3;
   const total = items.length;
   const maxIdx = Math.max(0, total - cols);
-  const go = (i) => setIdx(Math.max(0, Math.min(maxIdx, i)));
 
-  const touchStart = useRef(null);
-  const onTouchStart = (e) => { touchStart.current = e.touches[0].clientX; };
-  const onTouchEnd = (e) => {
-    if (touchStart.current === null) return;
-    const dx = e.changedTouches[0].clientX - touchStart.current;
-    touchStart.current = null;
-    if (Math.abs(dx) > 40) go(idx + (dx < 0 ? 1 : -1));
+  const go = (i) => {
+    const next = Math.max(0, Math.min(maxIdx, i));
+    setIdx(next);
+    const el = viewportRef.current;
+    if (el) el.scrollTo({ left: next * (el.offsetWidth / cols), behavior: 'smooth' });
+  };
+
+  const onScroll = () => {
+    const el = viewportRef.current;
+    if (!el) return;
+    setIdx(Math.min(Math.round(el.scrollLeft / (el.offsetWidth / cols)), maxIdx));
   };
 
   return (
-    <div className="cs-carousel" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
-      <div className="cs-car-viewport" style={{ '--cols': cols }}>
-        <div className="cs-car-track" style={{ transform: `translateX(calc(-${idx} * (100% / ${cols})))` }}>
-          {items.map((it, i) => (
-            <div key={i} className="cs-car-slide" style={{ flex: `0 0 calc(100% / ${cols})` }}>
-              <figure className={"cs-sect-item" + (s.kind === "posters" ? " is-poster" : "")}>
-                <div
-                  className="cs-sect-frame"
-                  style={it.aspect ? { aspectRatio: it.aspect } : undefined}
-                >
-                  <MediaSlot
-                    c1={it.c1} c2={it.c2} url={it.url}
-                    label={it.lbl} lbl2={it.ratio || ""}
-                    fit={it.fit || "cover"}
-                  />
-                  {s.kind === "video" && (
-                    <div className="cs-sect-rec"><span /> {it.runtime}</div>
-                  )}
-                </div>
-                {(it.title || it.caption) && (
-                  <figcaption className="cs-sect-cap">
-                    <span className="cs-sect-cap-t">{it.title || it.caption}</span>
-                    {s.kind !== "image" && (it.lbl || it.runtime) && (
-                      <span className="cs-sect-cap-m">
-                        {it.lbl}{it.runtime && ` · ${it.runtime} · ${it.ratio}`}
-                      </span>
-                    )}
-                  </figcaption>
+    <div className="cs-carousel">
+      <div className="cs-car-viewport" ref={viewportRef} onScroll={onScroll}>
+        {items.map((it, i) => (
+          <div key={i} className="cs-car-slide" style={{ flex: `0 0 ${100 / cols}%` }}>
+            <figure className={"cs-sect-item" + (s.kind === "posters" ? " is-poster" : "")}>
+              <div
+                className="cs-sect-frame"
+                style={it.aspect ? { aspectRatio: it.aspect } : undefined}
+              >
+                <MediaSlot
+                  c1={it.c1} c2={it.c2} url={it.url}
+                  label={it.lbl} lbl2={it.ratio || ""}
+                  fit={it.fit || "cover"}
+                />
+                {s.kind === "video" && it.runtime && (
+                  <div className="cs-sect-rec"><span /> {it.runtime}</div>
                 )}
-              </figure>
-            </div>
-          ))}
-        </div>
+              </div>
+              {(it.title || it.caption) && (
+                <figcaption className="cs-sect-cap">
+                  <span className="cs-sect-cap-t">{it.title || it.caption}</span>
+                  {s.kind !== "image" && (it.lbl || it.runtime) && (
+                    <span className="cs-sect-cap-m">
+                      {it.lbl}{it.runtime && ` · ${it.runtime} · ${it.ratio}`}
+                    </span>
+                  )}
+                </figcaption>
+              )}
+            </figure>
+          </div>
+        ))}
       </div>
       {total > cols && (
         <>
-          <button className="cs-car-prev" onClick={() => go(idx - 1)} disabled={idx === 0} aria-label="Previous">←</button>
-          <button className="cs-car-next" onClick={() => go(idx + 1)} disabled={idx === maxIdx} aria-label="Next">→</button>
+          <button className="cs-car-prev" onClick={() => go(idx - 1)} disabled={idx === 0}>←</button>
+          <button className="cs-car-next" onClick={() => go(idx + 1)} disabled={idx === maxIdx}>→</button>
           <div className="cs-car-footer">
-            {total <= 12 && (
+            {maxIdx <= 9 && (
               <div className="cs-car-dots">
                 {Array.from({ length: maxIdx + 1 }, (_, i) => (
                   <button key={i} className={'cs-car-dot' + (i === idx ? ' is-on' : '')} onClick={() => go(i)} />
                 ))}
               </div>
             )}
-            <span className="cs-car-count">{idx + 1} – {Math.min(idx + cols, total)} / {total}</span>
+            <span className="cs-car-count">{idx + 1}–{Math.min(idx + cols, total)} / {total}</span>
           </div>
         </>
       )}
