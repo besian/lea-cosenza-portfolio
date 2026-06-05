@@ -271,3 +271,65 @@ textarea { font-family: "Archivo", sans-serif }
   font-family: "JetBrains Mono", monospace; font-size: 13px;
   letter-spacing: .04em; text-transform: uppercase;
 }
+
+/* ── Login ───────────────────────────────────────────────────────────────── */
+.login-wrap {
+  min-height: 100vh; display: flex; align-items: center; justify-content: center;
+  background: var(--paper);
+}
+.login-card { width: 340px; padding: 0 24px; }
+.login-mark {
+  display: flex; align-items: center; gap: 8px; margin-bottom: 36px;
+  font-family: "JetBrains Mono", monospace; font-size: 11px;
+  letter-spacing: .08em; text-transform: uppercase; color: var(--ink-2);
+}
+.login-h {
+  margin: 0 0 28px; font-family: "Archivo", sans-serif; font-weight: 900;
+  font-size: clamp(36px, 6vw, 56px); line-height: .88; letter-spacing: -0.03em;
+  text-transform: uppercase;
+}
+.login-h em { font-family: "Instrument Serif", serif; font-style: italic; font-weight: 400; color: var(--accent); }
+.login-input {
+  width: 100%; font: inherit; font-family: "Archivo", sans-serif; font-size: 17px;
+  color: var(--ink); background: var(--paper);
+  border: 1px solid var(--rule); padding: 12px 14px; border-radius: 6px;
+  outline: none; margin-bottom: 10px; display: block;
+}
+.login-input:focus { border-color: var(--ink); background: var(--paper-2); }
+.login-err {
+  font-family: "JetBrains Mono", monospace; font-size: 11px;
+  color: var(--accent); letter-spacing: .04em; margin-bottom: 10px;
+}
+.login-btn {
+  width: 100%; padding: 12px; background: var(--ink); color: var(--paper);
+  font-family: "JetBrains Mono", monospace; font-size: 12px; font-weight: 700;
+  letter-spacing: .1em; text-transform: uppercase;
+  border: 0; border-radius: 6px; cursor: pointer;
+  transition: background .15s;
+}
+.login-btn:not(:disabled):hover { background: var(--accent); }
+.login-btn:disabled { opacity: .4; cursor: not-allowed; }
+
+/* ── Upload button (in palette / section rows) ───────────────────────────── */
+.pal-row { grid-template-columns: 46px 46px 56px 1fr 80px; }
+
+.pal-media {
+  display: flex; align-items: center; gap: 4px; width: 56px;
+}
+.pal-thumb {
+  width: 26px; height: 26px; object-fit: cover;
+  border-radius: 3px; border: 1px solid var(--rule); flex-shrink: 0;
+}
+.up-btn {
+  width: 26px; height: 26px; border: 1px dashed var(--rule); border-radius: 4px;
+  font-family: "JetBrains Mono", monospace; font-size: 11px; font-weight: 700;
+  color: var(--ink-2); cursor: pointer; flex-shrink: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+  transition: border-color .12s, color .12s;
+}
+.up-btn:hover { border-color: var(--accent); color: var(--accent); }
+.up-btn.is-busy { border-color: var(--accent); color: var(--accent); cursor: wait; }
+
+/* Widen sect-item-row to fit the media column */
+.sect-item-row { grid-template-columns: 46px 46px 56px 1fr 1fr auto; }
+.sect-items-head { grid-template-columns: 46px 46px 56px 1fr 1fr auto; }

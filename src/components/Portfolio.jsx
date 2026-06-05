@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { MARQUEE_TERMS } from '../data';
 import { Placeholder } from './Placeholder';
+import { MediaSlot } from './MediaSlot';
 
 // ─── Topbar ──────────────────────────────────────────────────────────────────
 export function Topbar() {
@@ -121,19 +122,19 @@ export function Featured({ project, onOpen }) {
 
       <div className="ft-grid" data-cursor="play" onClick={() => onOpen(p)}>
         <div className="ft-cell ft-hero">
-          <Placeholder c1={p.palette[0].c1} c2={p.palette[0].c2} label="A — Film · Residency" lbl2="2.39:1 · 04:12" />
+          <MediaSlot c1={p.palette[0].c1} c2={p.palette[0].c2} url={p.palette[0]?.url} label="A — Film · Residency" lbl2="2.39:1 · 04:12" />
           <div className="ft-hero-tc">
             <span className="rec" />REC · 04:12 · 23.976
           </div>
         </div>
         <div className="ft-cell ft-a">
-          <Placeholder c1={p.palette[1].c1} c2={p.palette[1].c2} label="B — Identity · Marquee wide" />
+          <MediaSlot c1={p.palette[1].c1} c2={p.palette[1].c2} url={p.palette[1]?.url} label="B — Identity · Marquee wide" />
         </div>
         <div className="ft-cell ft-b">
-          <Placeholder c1={p.palette[4].c1} c2={p.palette[4].c2} label="C — Print · Poster 06/24" />
+          <MediaSlot c1={p.palette[4].c1} c2={p.palette[4].c2} url={p.palette[4]?.url} label="C — Print · Poster 06/24" />
         </div>
         <div className="ft-cell ft-c">
-          <Placeholder c1={p.palette[3].c1} c2={p.palette[3].c2} label="D — Merch · Drop 01" />
+          <MediaSlot c1={p.palette[3].c1} c2={p.palette[3].c2} url={p.palette[3]?.url} label="D — Merch · Drop 01" />
         </div>
         <div className="ft-cell ft-cta">
           <div className="ft-cta-inner">

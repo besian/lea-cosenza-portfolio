@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { Placeholder } from './Placeholder';
+import { MediaSlot } from './MediaSlot';
 
 const clone = (v) => JSON.parse(JSON.stringify(v));
 
@@ -48,7 +49,7 @@ function EditSwatch({ c1, c2, onChange }) {
   );
 }
 
-export function CaseStudy({ project, nextProject, onClose, onNext, onSaveProject, onDelete, initialEditing }) {
+export function CaseStudy({ project, nextProject, onClose, onNext, onSaveProject, onDelete, initialEditing, canEdit = false }) {
   const scrollerRef = useRef(null);
   const [editing, setEditing] = useState(!!initialEditing);
   const [draft, setDraft] = useState(project);
@@ -175,7 +176,7 @@ export function CaseStudy({ project, nextProject, onClose, onNext, onSaveProject
             </>
           ) : (
             <>
-              <button className="cs-close" onClick={() => setEditing(true)} data-cursor="link">Edit ✎</button>
+              {canEdit && <button className="cs-close" onClick={() => setEditing(true)} data-cursor="link">Edit ✎</button>}
               <button className="cs-close" onClick={onClose} data-cursor="link">Close ✕</button>
             </>
           )}
@@ -192,12 +193,18 @@ export function CaseStudy({ project, nextProject, onClose, onNext, onSaveProject
       </div>
 
       <div className="cs-hero">
-        <Placeholder c1={heroFrame.c1} c2={heroFrame.c2} label={`${p.id.toUpperCase()} — HERO PLATE`} lbl2={p.ratio} />
-        <div className="cs-hero-tc"><span /> Drop reel here · {p.runtime}</div>
+        <MediaSlot
+          c1={heroFrame.c1} c2={heroFrame.c2}
+          url={heroFrame.url}
+          label={`${p.id.toUpperCase()} — HERO PLATE`} lbl2={p.ratio}
+          editing={editing} projectId={p.id}
+          onUpload={url => setPalette(0, { url })}
+        />
+        <div className="cs-hero-tc"><span /> {heroFrame.url ? p.title : 'Drop reel here'} · {p.runtime}</div>
         {editing && (
           <div className="cs-hero-edit">
             <EditSwatch c1={heroFrame.c1} c2={heroFrame.c2} onChange={(patch) => setPalette(0, patch)} />
-            <span className="ed-hint">Hero plate uses palette frame #1</span>
+            <span className="ed-hint">Hero plate — palette frame #1</span>
           </div>
         )}
       </div>
@@ -223,6 +230,7 @@ export function CaseStudy({ project, nextProject, onClose, onNext, onSaveProject
             section={s}
             alt={si % 2 === 1}
             editing={editing}
+            projectId={p.id}
             onChange={(patch) => setSection(si, patch)}
             onRemove={() => removeSection(si)}
             onMoveUp={() => moveSection(si, -1)}
@@ -247,7 +255,12 @@ export function CaseStudy({ project, nextProject, onClose, onNext, onSaveProject
                 const spans = ["span-4","span-2","span-2","span-2","span-2","span-3"];
                 return (
                   <div key={i} className={"cs-frame " + spans[i]}>
-                    <Placeholder c1={f.c1} c2={f.c2} label={f.label} lbl2={i === 0 ? "A-CAM" : i === 5 ? "MASTER" : ""} />
+                    <MediaSlot
+                      c1={f.c1} c2={f.c2} url={f.url}
+                      label={f.label} lbl2={i === 0 ? "A-CAM" : i === 5 ? "MASTER" : ""}
+                      editing={editing} projectId={p.id}
+                      onUpload={url => setPalette(i, { url })}
+                    />
                     {editing && (
                       <div className="cs-frame-edit">
                         <EditSwatch c1={f.c1} c2={f.c2} onChange={(patch) => setPalette(i, patch)} />
@@ -314,7 +327,7 @@ export function CaseStudy({ project, nextProject, onClose, onNext, onSaveProject
   );
 }
 
-function CSSection({ section: s, alt, editing, onChange, onRemove, onMoveUp, onMoveDown, canMoveUp, canMoveDown, onItemChange, onItemAdd, onItemRemove }) {
+function CSSection({ section: s, alt, editing, projectId, onChange, onRemove, onMoveUp, onMoveDown, canMoveUp, canMoveDown, onItemChange, onItemAdd, onItemRemove }) {
   const colsByKind = { films:3, identity:4, posters:4, merch:4, print:4 };
   const cols = colsByKind[s.kind] || 4;
   const isSingleton = s.kind === "text" || s.kind === "image" || s.kind === "video";
@@ -341,11 +354,11 @@ function CSSection({ section: s, alt, editing, onChange, onRemove, onMoveUp, onM
       </div>
 
       {s.kind === "image" && s.items[0] && (
-        <SingletonMedia kind="image" item={s.items[0]} editing={editing} onChange={(patch) => onItemChange(0, patch)} />
+        <SingletonMedia kind="image" item={s.items[0]} editing={editing} projectId={projectId} onChange={(patch) => onItemChange(0, patch)} />
       )}
 
       {s.kind === "video" && s.items[0] && (
-        <SingletonMedia kind="video" item={s.items[0]} editing={editing} onChange={(patch) => onItemChange(0, patch)} />
+        <SingletonMedia kind="video" item={s.items[0]} editing={editing} projectId={projectId} onChange={(patch) => onItemChange(0, patch)} />
       )}
 
       {!isSingleton && (
@@ -353,7 +366,12 @@ function CSSection({ section: s, alt, editing, onChange, onRemove, onMoveUp, onM
           {s.items.map((it, i) => (
             <figure key={i} className={"cs-sect-item " + (s.kind === "films" ? "is-film " : "") + (s.kind === "posters" ? "is-poster " : "")}>
               <div className={"cs-sect-frame " + (s.kind === "films" && it.ratio === "9:16" ? "is-vert" : "")}>
-                <Placeholder c1={it.c1} c2={it.c2} label={it.lbl} lbl2={it.ratio || ""} />
+                <MediaSlot
+                  c1={it.c1} c2={it.c2} url={it.url}
+                  label={it.lbl} lbl2={it.ratio || ""}
+                  editing={editing} projectId={projectId}
+                  onUpload={url => onItemChange(i, { url })}
+                />
                 {s.kind === "films" && (
                   <div className="cs-sect-rec"><span /> {it.runtime}</div>
                 )}
@@ -386,18 +404,22 @@ function CSSection({ section: s, alt, editing, onChange, onRemove, onMoveUp, onM
   );
 }
 
-function SingletonMedia({ kind, item: it, editing, onChange }) {
+function SingletonMedia({ kind, item: it, editing, projectId, onChange }) {
   return (
     <div className={"cs-singleton is-" + kind}>
       <div className="cs-singleton-frame">
-        <Placeholder c1={it.c1} c2={it.c2} label={it.lbl} lbl2={kind === "video" ? it.ratio : ""} />
+        <MediaSlot
+          c1={it.c1} c2={it.c2} url={it.url}
+          label={it.lbl} lbl2={kind === "video" ? it.ratio : ""}
+          editing={editing} projectId={projectId}
+          onUpload={url => onChange({ url })}
+        />
         {kind === "video" && (
           <div className="cs-singleton-tc"><span /> REC · {it.runtime || "0:00"} · {it.ratio || "16:9"}</div>
         )}
         {editing && (
           <div className="cs-singleton-edit">
             <EditSwatch c1={it.c1} c2={it.c2} onChange={onChange} />
-            <span className="ed-hint">{kind === "image" ? "Drop an image" : "Drop a video"}</span>
           </div>
         )}
       </div>
