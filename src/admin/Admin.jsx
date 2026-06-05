@@ -1,10 +1,13 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { auth } from '../firebase';
 import { fetchProjects, saveProject, saveAllProjects, removeProject } from '../firestore';
-import { uploadMedia } from '../storage';
+import { uploadToLibrary } from '../storage';
+import { fetchMedia } from '../media-library';
 import { DEFAULT_PROJECTS, DISCIPLINES, SECTION_TEMPLATES, SECTION_TYPES } from '../data';
 import { Login } from './Login';
+import { MediaLibrary } from './MediaLibrary';
 import './admin.css';
 
 const clone = (v) => JSON.parse(JSON.stringify(v));
@@ -198,6 +201,14 @@ export default function Admin() {
         </div>
 
         <div className="side-list">
+          <div
+            className={'side-item side-media' + (selectedId === '__media__' ? ' is-on' : '')}
+            onClick={() => setSelectedId('__media__')}
+          >
+            <span className="si-num">⊞</span>
+            <span className="si-title">Media Library</span>
+            <span className="si-disc">Shared</span>
+          </div>
           {projects.map(p => (
             <div
               key={p.id}
@@ -225,7 +236,9 @@ export default function Admin() {
 
       {/* ── Main ── */}
       <main className="main">
-        {!selected ? (
+        {selectedId === '__media__' ? (
+          <MediaLibrary onToast={showToast} />
+        ) : !selected ? (
           <div className="empty">Select a project on the left to edit it.</div>
         ) : (
           <ProjectForm
@@ -260,18 +273,21 @@ export default function Admin() {
 }
 
 // ─── Upload button ─────────────────────────────────────────────────────────
-function UploadBtn({ projectId, onUpload }) {
-  const ref = useRef(null);
+function UploadBtn({ onUpload }) {
+  const fileRef = useRef(null);
   const [pct, setPct] = useState(null);
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const [pickerItems, setPickerItems] = useState([]);
+  const [pickerLoading, setPickerLoading] = useState(false);
 
-  const handle = async (e) => {
+  const handleUpload = async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
     e.target.value = '';
     setPct(0);
     try {
-      const url = await uploadMedia(projectId, file, setPct);
-      onUpload(url);
+      const item = await uploadToLibrary(file, setPct);
+      onUpload(item.url);
     } catch (err) {
       alert('Upload failed: ' + err.message);
     } finally {
@@ -279,14 +295,71 @@ function UploadBtn({ projectId, onUpload }) {
     }
   };
 
+  const openPicker = async () => {
+    setPickerOpen(true);
+    setPickerLoading(true);
+    try {
+      const items = await fetchMedia();
+      setPickerItems(items);
+    } finally {
+      setPickerLoading(false);
+    }
+  };
+
+  const pick = (item) => {
+    onUpload(item.url);
+    setPickerOpen(false);
+  };
+
   return (
-    <div
-      className={'up-btn' + (pct !== null ? ' is-busy' : '')}
-      onClick={() => pct === null && ref.current?.click()}
-      title="Upload image or video"
-    >
-      <input ref={ref} type="file" accept="image/*,video/*" style={{ display: 'none' }} onChange={handle} />
-      {pct !== null ? `${Math.round(pct)}%` : '↑'}
+    <div className="up-group">
+      <div
+        className={'up-btn' + (pct !== null ? ' is-busy' : '')}
+        onClick={() => pct === null && fileRef.current?.click()}
+        title="Upload to library"
+      >
+        <input ref={fileRef} type="file" accept="image/*,video/*" style={{ display: 'none' }} onChange={handleUpload} />
+        {pct !== null ? `${Math.round(pct)}%` : '↑'}
+      </div>
+      <div className="up-btn" onClick={openPicker} title="Pick from library">⊞</div>
+      {pickerOpen && createPortal(
+        <MediaPicker
+          items={pickerItems}
+          loading={pickerLoading}
+          onPick={pick}
+          onClose={() => setPickerOpen(false)}
+        />,
+        document.body,
+      )}
+    </div>
+  );
+}
+
+function MediaPicker({ items, loading, onPick, onClose }) {
+  const isVideo = (url) => url && /\.(mp4|mov|webm|ogg)(\?|$)/i.test(url.split('?')[0]);
+  return (
+    <div className="mpick-overlay" onClick={onClose}>
+      <div className="mpick-modal" onClick={e => e.stopPropagation()}>
+        <div className="mpick-head">
+          <span>Media Library</span>
+          <button className="x-btn" onClick={onClose}>✕</button>
+        </div>
+        {loading && <div className="empty">Loading…</div>}
+        {!loading && !items.length && (
+          <div className="empty">No media yet — upload files to the library first.</div>
+        )}
+        <div className="mpick-grid">
+          {items.map(item => (
+            <div key={item.id} className="mpick-item" onClick={() => onPick(item)} title={item.name}>
+              {isVideo(item.url)
+                ? <video src={item.url} className="mpick-thumb" muted />
+                : <img src={item.url} className="mpick-thumb" alt={item.name} />
+              }
+              <span className="mpick-name">{item.name}</span>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
@@ -468,7 +541,7 @@ function ProjectForm({ project, onChange }) {
                   ? <video src={f.url} className="pal-thumb" muted />
                   : <img src={f.url} className="pal-thumb" alt="" />
               )}
-              <UploadBtn projectId={p.id} onUpload={url => patchPalette(i, 'url', url)} />
+              <UploadBtn onUpload={url => patchPalette(i, 'url', url)} />
             </div>
             <input
               className="pal-label"
@@ -540,7 +613,7 @@ function ProjectForm({ project, onChange }) {
                         ? <video src={it.url} className="pal-thumb" muted />
                         : <img src={it.url} className="pal-thumb" alt="" />
                     )}
-                    <UploadBtn projectId={p.id} onUpload={url => patchSectionItem(si, ii, 'url', url)} />
+                    <UploadBtn onUpload={url => patchSectionItem(si, ii, 'url', url)} />
                   </div>
                   <input
                     type="text"

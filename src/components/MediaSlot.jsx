@@ -1,13 +1,13 @@
 import { useRef, useState } from 'react';
 import { Placeholder } from './Placeholder';
-import { uploadMedia } from '../storage';
+import { uploadToLibrary } from '../storage';
 
 const isVideoUrl = (url) => url && /\.(mp4|mov|webm|ogg)(\?|$)/i.test(url.split('?')[0]);
 
 export function MediaSlot({
   c1, c2, label, lbl2, url,
   fit = 'cover',
-  editing = false, projectId,
+  editing = false,
   onUpload,
   className = '', children,
 }) {
@@ -16,12 +16,12 @@ export function MediaSlot({
 
   const handleFile = async (e) => {
     const file = e.target.files?.[0];
-    if (!file || !projectId) return;
+    if (!file) return;
     e.target.value = '';
     setPct(0);
     try {
-      const downloadUrl = await uploadMedia(projectId, file, setPct);
-      onUpload?.(downloadUrl);
+      const item = await uploadToLibrary(file, setPct);
+      onUpload?.(item.url);
     } catch (err) {
       alert('Upload failed: ' + err.message);
     } finally {

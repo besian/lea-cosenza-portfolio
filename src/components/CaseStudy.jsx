@@ -186,7 +186,7 @@ export function CaseStudy({ project, nextProject, onClose, onNext, onSaveProject
           c1={heroFrame.c1} c2={heroFrame.c2}
           url={heroFrame.url}
           label={`${p.id.toUpperCase()} — HERO PLATE`} lbl2={p.ratio}
-          editing={editing} projectId={p.id}
+          editing={editing}
           onUpload={url => setPalette(0, { url })}
         />
         <div className="cs-hero-tc"><span /> {heroFrame.url ? p.title : 'Drop reel here'} · {p.runtime}</div>
@@ -219,7 +219,6 @@ export function CaseStudy({ project, nextProject, onClose, onNext, onSaveProject
             section={s}
             alt={si % 2 === 1}
             editing={editing}
-            projectId={p.id}
             onChange={(patch) => setSection(si, patch)}
             onRemove={() => removeSection(si)}
             onMoveUp={() => moveSection(si, -1)}
@@ -247,7 +246,7 @@ export function CaseStudy({ project, nextProject, onClose, onNext, onSaveProject
                     <MediaSlot
                       c1={f.c1} c2={f.c2} url={f.url}
                       label={f.label} lbl2={i === 0 ? "A-CAM" : i === 5 ? "MASTER" : ""}
-                      editing={editing} projectId={p.id}
+                      editing={editing}
                       onUpload={url => setPalette(i, { url })}
                     />
                     {editing && (
@@ -319,7 +318,7 @@ export function CaseStudy({ project, nextProject, onClose, onNext, onSaveProject
 const ASPECT_OPTIONS = ['16/9','4/3','1/1','3/2','3/4','9/16'];
 const FIT_OPTIONS = ['cover','contain','fill'];
 
-function CSSection({ section: s, alt, editing, projectId, onChange, onRemove, onMoveUp, onMoveDown, canMoveUp, canMoveDown, onItemChange, onItemAdd, onItemRemove }) {
+function CSSection({ section: s, alt, editing, onChange, onRemove, onMoveUp, onMoveDown, canMoveUp, canMoveDown, onItemChange, onItemAdd, onItemRemove }) {
   const colsByKind = { films:3, identity:4, posters:4, merch:4, print:4, image:2, video:2 };
   const cols = s.cols || colsByKind[s.kind] || 4;
   const isSingleton = s.kind === "text";
@@ -365,7 +364,7 @@ function CSSection({ section: s, alt, editing, projectId, onChange, onRemove, on
                   c1={it.c1} c2={it.c2} url={it.url}
                   label={it.lbl} lbl2={it.ratio || ""}
                   fit={it.fit || "cover"}
-                  editing={editing} projectId={projectId}
+                  editing={editing}
                   onUpload={url => onItemChange(i, { url })}
                 />
                 {(s.kind === "films" || s.kind === "video") && (
