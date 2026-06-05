@@ -353,6 +353,9 @@ function CSSection({ section: s, alt, editing, onChange, onRemove, onMoveUp, onM
       </div>
 
       {!isSingleton && (s.items?.length > 0 || editing) && (
+        !editing && (s.kind === 'image' || s.kind === 'video') && (s.items?.length ?? 0) > 1 ? (
+          <CSCarousel section={s} />
+        ) : (
         <div className="cs-sect-grid" style={{ gridTemplateColumns:`repeat(${cols},1fr)` }}>
           {(s.items || []).map((it, i) => (
             <figure key={i} className={"cs-sect-item " + (s.kind === "films" ? "is-film " : "") + (s.kind === "posters" ? "is-poster " : "")}>
@@ -413,6 +416,77 @@ function CSSection({ section: s, alt, editing, onChange, onRemove, onMoveUp, onM
             <button className="cs-sect-add" onClick={onItemAdd}>+ Add item</button>
           )}
         </div>
+        )
+      )}
+    </div>
+  );
+}
+
+function CSCarousel({ section: s }) {
+  const [idx, setIdx] = useState(0);
+  const items = s.items || [];
+  if (!items.length) return null;
+
+  const total = items.length;
+  const go = (i) => setIdx((i + total) % total);
+
+  const touchStart = useRef(null);
+  const onTouchStart = (e) => { touchStart.current = e.touches[0].clientX; };
+  const onTouchEnd = (e) => {
+    if (touchStart.current === null) return;
+    const dx = e.changedTouches[0].clientX - touchStart.current;
+    touchStart.current = null;
+    if (Math.abs(dx) > 40) go(idx + (dx < 0 ? 1 : -1));
+  };
+
+  return (
+    <div className="cs-carousel" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
+      <div className="cs-car-viewport">
+        <div className="cs-car-track" style={{ transform: `translateX(-${idx * 100}%)` }}>
+          {items.map((it, i) => (
+            <div key={i} className="cs-car-slide">
+              <figure className={"cs-sect-item" + (s.kind === "posters" ? " is-poster" : "")}>
+                <div
+                  className={"cs-sect-frame" + ((s.kind === "video") && it.ratio === "9:16" ? " is-vert" : "")}
+                  style={it.aspect ? { aspectRatio: it.aspect } : undefined}
+                >
+                  <MediaSlot
+                    c1={it.c1} c2={it.c2} url={it.url}
+                    label={it.lbl} lbl2={it.ratio || ""}
+                    fit={it.fit || "cover"}
+                  />
+                  {s.kind === "video" && (
+                    <div className="cs-sect-rec"><span /> {it.runtime}</div>
+                  )}
+                </div>
+                {(it.title || it.caption) && (
+                  <figcaption className="cs-sect-cap">
+                    <span className="cs-sect-cap-t">{it.title || it.caption}</span>
+                    {s.kind !== "image" && (it.lbl || it.runtime) && (
+                      <span className="cs-sect-cap-m">
+                        {it.lbl}{it.runtime && ` · ${it.runtime} · ${it.ratio}`}
+                      </span>
+                    )}
+                  </figcaption>
+                )}
+              </figure>
+            </div>
+          ))}
+        </div>
+      </div>
+      {total > 1 && (
+        <>
+          <button className="cs-car-prev" onClick={() => go(idx - 1)} aria-label="Previous">←</button>
+          <button className="cs-car-next" onClick={() => go(idx + 1)} aria-label="Next">→</button>
+          <div className="cs-car-footer">
+            <div className="cs-car-dots">
+              {items.map((_, i) => (
+                <button key={i} className={'cs-car-dot' + (i === idx ? ' is-on' : '')} onClick={() => setIdx(i)} />
+              ))}
+            </div>
+            <span className="cs-car-count">{idx + 1} / {total}</span>
+          </div>
+        </>
       )}
     </div>
   );

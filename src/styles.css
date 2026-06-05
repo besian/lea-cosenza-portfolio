@@ -667,6 +667,46 @@ footer{
 .ms:hover .ms-up { opacity: 1; pointer-events: auto; }
 .ms-up.is-busy { opacity: 1; pointer-events: none; background: var(--accent); }
 
+/* ── Section carousel (image / video in view mode) ──────────── */
+.cs-carousel{position:relative;padding-bottom:36px}
+.cs-car-viewport{overflow:hidden}
+.cs-car-track{
+  display:flex;
+  transition:transform .42s cubic-bezier(.4,0,.2,1);
+  will-change:transform;
+}
+.cs-car-slide{flex:0 0 100%;width:100%;min-width:0}
+.cs-car-slide .cs-sect-item{margin:0}
+
+.cs-car-prev,.cs-car-next{
+  position:absolute;top:calc(50% - 18px);transform:translateY(-50%);z-index:4;
+  width:42px;height:42px;border-radius:50%;
+  background:var(--ink);color:var(--paper);border:0;cursor:pointer;
+  font-size:17px;display:flex;align-items:center;justify-content:center;
+  opacity:0;transition:opacity .2s,background .12s;
+}
+.cs-carousel:hover .cs-car-prev,
+.cs-carousel:hover .cs-car-next{opacity:1}
+.cs-car-prev{left:16px}
+.cs-car-next{right:16px}
+.cs-car-prev:hover,.cs-car-next:hover{background:var(--accent)}
+
+.cs-car-footer{
+  position:absolute;bottom:0;left:0;right:0;
+  display:flex;align-items:center;justify-content:center;gap:12px;
+  padding:8px 0;
+}
+.cs-car-dots{display:flex;gap:7px;align-items:center}
+.cs-car-dot{
+  width:6px;height:6px;border-radius:50%;padding:0;border:0;cursor:pointer;
+  background:var(--rule);transition:background .2s,transform .2s;
+}
+.cs-car-dot.is-on{background:var(--ink);transform:scale(1.4)}
+.cs-car-count{
+  font-family:"JetBrains Mono",monospace;font-size:10.5px;
+  letter-spacing:.08em;color:var(--ink-2);text-transform:uppercase;
+}
+
 /* Reduce motion */
 @media (prefers-reduced-motion: reduce){
   *{animation:none!important;transition:none!important}
