@@ -427,8 +427,10 @@ function CSCarousel({ section: s }) {
   const items = s.items || [];
   if (!items.length) return null;
 
+  const cols = s.cols || 3;
   const total = items.length;
-  const go = (i) => setIdx((i + total) % total);
+  const maxIdx = Math.max(0, total - cols);
+  const go = (i) => setIdx(Math.max(0, Math.min(maxIdx, i)));
 
   const touchStart = useRef(null);
   const onTouchStart = (e) => { touchStart.current = e.touches[0].clientX; };
@@ -441,13 +443,13 @@ function CSCarousel({ section: s }) {
 
   return (
     <div className="cs-carousel" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
-      <div className="cs-car-viewport">
-        <div className="cs-car-track" style={{ transform: `translateX(-${idx * 100}%)` }}>
+      <div className="cs-car-viewport" style={{ '--cols': cols }}>
+        <div className="cs-car-track" style={{ transform: `translateX(calc(-${idx} * (100% / ${cols})))` }}>
           {items.map((it, i) => (
-            <div key={i} className="cs-car-slide">
+            <div key={i} className="cs-car-slide" style={{ flex: `0 0 calc(100% / ${cols})` }}>
               <figure className={"cs-sect-item" + (s.kind === "posters" ? " is-poster" : "")}>
                 <div
-                  className={"cs-sect-frame" + ((s.kind === "video") && it.ratio === "9:16" ? " is-vert" : "")}
+                  className="cs-sect-frame"
                   style={it.aspect ? { aspectRatio: it.aspect } : undefined}
                 >
                   <MediaSlot
@@ -474,17 +476,19 @@ function CSCarousel({ section: s }) {
           ))}
         </div>
       </div>
-      {total > 1 && (
+      {total > cols && (
         <>
-          <button className="cs-car-prev" onClick={() => go(idx - 1)} aria-label="Previous">←</button>
-          <button className="cs-car-next" onClick={() => go(idx + 1)} aria-label="Next">→</button>
+          <button className="cs-car-prev" onClick={() => go(idx - 1)} disabled={idx === 0} aria-label="Previous">←</button>
+          <button className="cs-car-next" onClick={() => go(idx + 1)} disabled={idx === maxIdx} aria-label="Next">→</button>
           <div className="cs-car-footer">
-            <div className="cs-car-dots">
-              {items.map((_, i) => (
-                <button key={i} className={'cs-car-dot' + (i === idx ? ' is-on' : '')} onClick={() => setIdx(i)} />
-              ))}
-            </div>
-            <span className="cs-car-count">{idx + 1} / {total}</span>
+            {total <= 12 && (
+              <div className="cs-car-dots">
+                {Array.from({ length: maxIdx + 1 }, (_, i) => (
+                  <button key={i} className={'cs-car-dot' + (i === idx ? ' is-on' : '')} onClick={() => go(i)} />
+                ))}
+              </div>
+            )}
+            <span className="cs-car-count">{idx + 1} – {Math.min(idx + cols, total)} / {total}</span>
           </div>
         </>
       )}
