@@ -14,11 +14,11 @@ function VideoPlaceholder({ c1, c2 }) {
 
 function VideoPlayer({ src, fit, editing }) {
   const ref = useRef(null);
-  const [playing, setPlaying] = useState(false);
+  const [playing, setPlaying] = useState(true);
   const [prog, setProg] = useState(0);
   const [dur, setDur] = useState(0);
   const [vol, setVol] = useState(1);
-  const [muted, setMuted] = useState(false);
+  const [muted, setMuted] = useState(true);
   const [hover, setHover] = useState(false);
 
   const toggle = (e) => {
@@ -57,6 +57,7 @@ function VideoPlayer({ src, fit, editing }) {
     const next = !muted;
     v.muted = next;
     setMuted(next);
+    if (!next && vol === 0) { v.volume = 1; setVol(1); }
   };
 
   const fmt = (s) => {
@@ -78,6 +79,9 @@ function VideoPlayer({ src, fit, editing }) {
         onTimeUpdate={onTimeUpdate}
         onLoadedMetadata={() => setDur(ref.current?.duration || 0)}
         onEnded={() => { setPlaying(false); setProg(0); }}
+        autoPlay
+        muted
+        loop
         playsInline
       />
       {!editing && (
