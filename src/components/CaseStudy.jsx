@@ -428,7 +428,12 @@ function CSCarousel({ section: s }) {
   const items = s.items || [];
   if (!items.length) return null;
 
-  const cols = s.cols || 3;
+  // Auto-pick visible columns from aspect ratio unless user explicitly set > 2
+  const firstAspect = items[0]?.aspect || '16/9';
+  const [aw, ah] = firstAspect.split('/').map(Number);
+  const isPortrait = !isNaN(aw) && !isNaN(ah) && ah > aw;
+  const autoCols = isPortrait ? 4 : 3;
+  const cols = (s.cols && s.cols > 2) ? s.cols : autoCols;
   const total = items.length;
   const maxIdx = Math.max(0, total - cols);
 

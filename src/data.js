@@ -229,7 +229,7 @@ export const DEFAULT_PROJECTS = [
 export const SECTION_TEMPLATES = {
   text:     { kind:"text",     h:"A heading",       copy:"Write a paragraph here. A plain prose block — no media.", items:[] },
   image:    { kind:"image",    h:"Images",          copy:"Optional caption or context.", cols:2, items:[{ c1:"#3a2818", c2:"#1a1208", lbl:"IMAGE", title:"", url:"", fit:"cover", aspect:"16/9" }] },
-  video:    { kind:"video",    h:"Videos",          copy:"Optional context for these clips.", cols:2, items:[{ c1:"#1a1a1a", c2:"#0a0a0a", lbl:"VIDEO", title:"New clip", runtime:"1:00", ratio:"16:9", url:"", fit:"cover", aspect:"16/9" }] },
+  video:    { kind:"video",    h:"Videos",          copy:"Optional context for these clips.", cols:4, items:[{ c1:"#1a1a1a", c2:"#0a0a0a", lbl:"VIDEO", title:"New clip", runtime:"1:00", ratio:"9:16", url:"", fit:"cover", aspect:"9/16" }] },
   films:    { kind:"films",    h:"Films",           copy:"Short description of this set of films.", items:[{ title:"New film", runtime:"1:00", ratio:"16:9", c1:"#1a1a1a", c2:"#0a0a0a", lbl:"FILM 01 — A.CAM", url:"" }] },
   identity: { kind:"identity", h:"Identity",        copy:"Wordmarks, lockups, stamps.", items:[{ title:"Wordmark", c1:"#161412", c2:"#0a0908", lbl:"MARK A", url:"" }] },
   posters:  { kind:"posters",  h:"Posters",         copy:"Series, monthly grid, etc.", items:[{ c1:"#ff3b1f", c2:"#161412", lbl:"POSTER 01", url:"" }] },
