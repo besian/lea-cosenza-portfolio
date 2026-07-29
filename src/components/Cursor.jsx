@@ -4,6 +4,9 @@ export function Cursor({ mode = "dot" }) {
   const ref = useRef(null);
   const [variant, setVariant] = useState("dot");
   const [pressed, setPressed] = useState(false);
+  const pressedRef = useRef(false);
+
+  useEffect(() => { pressedRef.current = pressed; }, [pressed]);
 
   useEffect(() => {
     if (mode === "off") return;
@@ -18,11 +21,11 @@ export function Cursor({ mode = "dot" }) {
       raf = 0;
       x += (tx - x) * 0.6;
       y += (ty - y) * 0.6;
-      el.style.transform = `translate(${x}px, ${y}px) translate(-50%, -50%)${pressed ? " scale(.55)" : ""}`;
+      el.style.transform = `translate(${x}px, ${y}px) translate(-50%, -50%)${pressedRef.current ? " scale(.55)" : ""}`;
     };
     window.addEventListener("mousemove", onMove);
     return () => { window.removeEventListener("mousemove", onMove); if (raf) cancelAnimationFrame(raf); };
-  }, [mode, pressed]);
+  }, [mode]);
 
   useEffect(() => {
     if (mode === "off") return;
