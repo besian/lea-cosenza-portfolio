@@ -42,7 +42,7 @@ export function Hero() {
         </div>
         <div className="hero-sub">
           <span className="hero-disc">Editor · Designer · Colorist</span>
-          <span className="hero-loc">Bristol — Milan</span>
+          <span className="hero-loc">London — Naples</span>
         </div>
         <div className="name-row bot">
           <span className="big">Co<span className="name-dot" />senza<span className="ital">.</span></span>
@@ -210,7 +210,7 @@ export function About() {
       </div>
       <div className="about" style={{ paddingTop:40 }}>
         <p className="lede">
-          <mark>Lea Cosenza</mark> — editor and designer between Bristol and Milan.
+          <mark>Lea Cosenza</mark> — editor and designer between London and Naples.
           Most of what I do is <em>quiet</em>. The rest is loud on purpose.
         </p>
         <dl className="meta">
@@ -251,7 +251,7 @@ export function Footer() {
       </div>
       <div className="colophon">
         <span>© 2019 — 2026 · Lea Cosenza Studio</span>
-        <span>Bristol · Milan</span>
+        <span>London · Naples</span>
       </div>
     </footer>
   );
